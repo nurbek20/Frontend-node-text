@@ -1,0 +1,404 @@
+var myVar="Hello world";
+myVar
+//! Hello world
+
+10/5
+2
+
+new Date();
+//? показывает ностояшие время 
+exit 
+//? для выхода
+//? mongo  localhost:27017/test
+//? для запуска база данных
+//? mongo --nodb
+//? вход база
+//? для запуска база данных
+conn = new Mongo("localhost:27017");
+//? для информация
+help 
+//? Ссылка на текущий база данных
+db
+//? use admin
+//? создания новый база данных 
+//? use test 
+//? перейти обратно на базу тест
+load("");
+//? запуск скрипт файла
+var car = {color:"red", maxSpeed:225};
+car
+//? {"color":"red", "maxSpeed":225}
+db.cars.insert(car);
+//? создания коллекция cars 
+db.cars.find();
+//? чтобы смотреть коллекция cars
+db.cars.insert({_id:123, color:"green",maxSpeed:230});
+//? для добавления ноый объект с указаниям id 
+db.cars.find();
+//? чтобы смотреть коллекция cars
+db.person.insert({name:"Max", age:22});
+//? создать новый база и записать данных 
+db.cars.remove({color:"red"});
+//? удаления запись 
+db.cars.remove({});
+//? удалить все записи 
+db.cars.drop();
+//? удалить все записи 
+db.cars.update({color:"red"},{color:"green",maxSpeed:240});
+// для изменения объекта
+db.cars.update({color:"red"},{maxSpeed:240});
+// нужно обновлят все параметры 
+
+// можно дабавить объект 
+var car = {color:"red", maxSpeed:225};
+db.cars.update({maxSpeed:240}, car)
+db.cars.find();
+// {"_id":"random_id", "model":"tayota", "color":"red"}
+
+//! Модификаторы 
+// для изменения 
+db.cars.update({color:"red"},{$set:{color:"blue"}})
+// для удаления запись объекта
+db.cars.update({color:"blue"},{$unset:{model:"tayota"}})
+// для увеличения количество 
+db.cars.update({color:"blue"},{$inc:{maxSpeed:-5}})
+
+//! Модификаторы и массивы
+// для добавления массив 
+// модефикатор push 
+db.cars.update({color:"blue"}, {$push:{owner:{name:"Max",LastName:"Smith"}}})
+// модефикатор each можно добавить несколько массивы
+db.cars.update({color:"blue"}, {$push:{owners:{$each:[{name:"Nick", lastName:"Dow"}]}}});
+// повторный 
+db.cars.update({color:"blue"}, {$push:{owner:{$each:[{name:"Nick", lastName:"Dow"}]}}});
+
+// модефикатор addToSet добавления массивы если есть то не добавить если нет то тогда дабавить
+db.cars.update({color:"blue"}, {$addToSet:{owner:{name:"Mike", lastName:"Black"}}})
+
+// если так пишем мы ничего не можем добавить  если нет такой массив
+db.cars.update({color:"red"}, {$set:{maxSpeed:225}});
+db.cars.find();
+// для того чтобы добавить нужно написать true тогда создаст массив сам и добавить все значения
+db.cars.update({color:"red"}, {$set:{maxSpeed:225}}, true);
+
+db.cars.find();
+// { "_id" : ObjectId("632420073a9a7b6541fc59e9"), "color" : "red", "maxSpeed" : 225 }
+
+// insert добавляеть объект 
+db.cars.insert({color:"red", maxSpeed:230});
+// если похожих объект есть тогда изменяет только первый объекть 
+db.cars.update({color:"red"}, {$set:{maxSpeed:240}});
+
+// чтобы изменит все похожих объекть нужно написать false true   
+db.cars.update({color:"red"}, {$set:{maxSpeed:250}}, false, true);
+
+//? Запросы
+// findOne возврашает первый объект попавший 
+db.cars.findOne();
+// чтобы найти точный объект
+db.cars.find({color:"red"});
+db.cars.find({maxSpeed:225});
+db.cars.find({color:"red"},{color:1});
+// возврашает 
+// { "_id" : ObjectId("63281d0888fd125651d0b54a"), "color" : "red" }
+db.cars.find({color:"red"},{color:1, _id:0});
+// возврашает 
+// { "color" : "red" }
+db.cars.find({color:"red"},{color:1, _id:0, maxSpeed:1});
+// возврашает 
+// { "color" : "red", "maxSpeed" : 250 }
+
+//? Продвинутые Запросы 
+// $gte больше указанного число находять $lte равно и менще указанного число находять
+db.cars.find({maxSpeed:{$gte:200,$lte:230}});
+// $ne неровна указанного число 
+db.cars.find({maxSpeed:{$ne:250}});
+
+// $in находять число указанного внутри массива
+db.cars.find({maxSpeed:{$in:[200, 225, 230]}});
+
+// $and находять объект точно указанного 
+db.cars.find({$and:[{color:"red"},{maxSpeed:225}]});
+
+// $or находять список первый указанного или второй указанного 
+db.cars.find({$or:[{color:"red"},{maxSpeed:225}]});
+
+// $in можем найти точно указанного список 
+db.cars.find({color:{$in:[null], $exists:true}});
+
+// находять встречеатся от буквы a z 
+db.cars.find({color:/r[a-z]*/});
+
+
+db.food.find({fruit:"apple"});
+// { "_id" : 1, "fruit" : [ "apple", "banana", "peach" ] }
+// { "_id" : 2, "fruit" : [ "apple", "kumquat", "orange" ] }
+// { "_id" : 3, "fruit" : [ "cherry", "banana", "apple" ] }
+
+// чтобы найти массив нужно указать точный порядок список массива иначе не будут поакзывать 
+db.food.find({fruit:["apple", "banana", "peach"]});
+
+// $all находять нам все эелементы хотя мы не пишем польностю
+db.food.find({fruit:{$all:["apple", "peach"]}});
+// $size находять нам указанного число  
+db.food.find({fruit:{$size:3}});
+// рузултать
+// { "_id" : 1, "fruit" : [ "apple", "banana", "peach" ] }
+// { "_id" : 2, "fruit" : [ "apple", "kumquat", "orange" ] }
+// { "_id" : 3, "fruit" : [ "cherry", "banana", "apple" ] }
+
+// $slice метод обрезаеть указанного число и возврашает остальных 
+db.food.find({fruit:"apple"},{fruit:{$slice:2}});
+// { "_id" : 1, "fruit" : [ "apple", "banana" ] }
+// { "_id" : 2, "fruit" : [ "apple", "kumquat" ] }
+// { "_id" : 3, "fruit" : [ "cherry", "banana" ] }
+db.food.find({fruit:"apple"},{fruit:{$slice:-2}});
+// { "_id" : 1, "fruit" : [ "banana", "peach" ] }
+// { "_id" : 2, "fruit" : [ "kumquat", "orange" ] }
+// { "_id" : 3, "fruit" : [ "banana", "apple" ] }
+ 
+// x $elemmatch находять все елементы указанного $gt $lt 
+find({"x":{"$elemMatch":{"$gt":10, "$lt":20}}});
+
+//? Запросы встроеннных документов 
+db.cars.find({name:{first:"Max", last:"Black"}});
+// резултать
+// { "_id" : ObjectId("6329605f6345b9ae7aacdec4"), "name" : { "first" : "Max", "last" : "Black" } }
+
+// резултать 0 
+// db.cars.find({"name.first":"Max"});
+
+db.cars.find({"name.first":"Max"});
+// резултать
+// { "_id" : ObjectId("6329605f6345b9ae7aacdec4"), "name" : { "first" : "Max", "last" : "Black" } }
+
+//? where 
+db.cars.find({$where:function() {if(this["color"] == "red") {return true;}}});
+// { "_id" : ObjectId("632832291cb3ff166b8c31b5"), "color" : "red", "maxSpeed" : 225 }
+// { "_id" : ObjectId("632832321cb3ff166b8c31b6"), "color" : "red", "maxSpeed" : 250 }
+
+//? Курсор 
+var cursor = db.cars.find();
+cursor
+// резултать
+// { "_id" : ObjectId("632832291cb3ff166b8c31b5"), "color" : "red", "maxSpeed" : 225 }
+// { "_id" : ObjectId("632832321cb3ff166b8c31b6"), "color" : "red", "maxSpeed" : 250 }
+// { "_id" : ObjectId("632836861cb3ff166b8c31b7"), "color" : null, "maxSpeed" : 230 }
+// { "_id" : ObjectId("6329605f6345b9ae7aacdec4"), "name" : { "first" : "Max", "last" : "Black" } }
+// { "_id" : ObjectId("632960786345b9ae7aacdec5"), "name" : { "first" : "Mike", "last" : "Smith" } }
+
+var cursor = db.cars.find();
+// hasNext() проверяеть есть внутри обьект 
+cursor.hasNext();
+true
+var obj = cursor.next();
+obj
+// резултать
+// {
+// 	"_id" : ObjectId("632832291cb3ff166b8c31b5"),
+// 	"color" : "red",
+// 	"maxSpeed" : 225
+// }
+db.cars.find().forEach(function(x){print(x.color)});
+// резултать
+// red
+// red
+// [unknown type]
+// [unknown type]
+// [unknown type]
+db.cars.find().limit(1).forEach(function(x){print(x.color)});
+// резултать
+// red
+db.cars.find().sort({color:-1}).forEach(function(x){print(x.color)});
+// резултать
+// red
+// red
+// [unknown type]
+// [unknown type]
+// [unknown type]
+
+db.cars.find().skip(2).forEach(function(x){print(x.color)});
+// [unknown type]
+// [unknown type]
+// [unknown type]
+// skip пропустить 
+db.cars.find().skip(1).forEach(function(x){print(x.color)});
+// red
+// [unknown type]
+// [unknown type]
+// [unknown type]
+
+//? Индексы 
+// показываеть ползовотеля время регистрация и все такое инф 
+db.users.find({username:"user101"}).explain();
+
+// находять одного ползовотелья и прекратится сразу найдет наиного бытрее
+db.users.find({username:"user100"}).limit(1).explain();
+
+// можно смотреть сколко секунд потреболась чтобы найти millis 
+db.users.find({username:"user100"}).limit(1).explain().millis;
+
+// ensureIndex даем индексу если нет индекс 
+db.users.ensureIndex({"username":1});
+
+//? Compound индексы
+// создания user объекть 
+db.user.insert({i:0, username:"user0", age:23, created:new Date()});
+
+// резултать
+db.user.find();
+// { "_id" : ObjectId("632aafadc6d232d19c63ff9d"), "i" : 0, "username" : "user0", "age" : 23, "created" : ISODate("2022-09-21T06:31:09.575Z") }
+// сортировка по user 
+db.user.find().sort({"age":1, "username":1}).explain();
+// поиск по индексу 
+db.user.ensureIndex({"age":1, "username":1});
+// {
+// 	"createdCollectionAutomatically" : false,
+// 	"numIndexesBefore" : 1,
+// 	"numIndexesAfter" : 2,
+// 	"ok" : 1
+// }
+
+//? Индексы и массивы и встроенные объекты 
+// индексирования объекты 
+db.cars.ensureIndex({"name.last":1});
+
+//? Condinality - Кондинальность
+
+// getIndexes() возврашает все индексы 
+db.users.getIndexes()
+// dropIndex() Удаляеть по индексу 
+db.users.dropIndex("age_1_username_1");
+// unique делаеть уникальные поля 
+db.users.ensureIndex({username:1, age:1},{"unique":true});
+
+// dropDups Удаляеть повторяшщихся елементы 
+db.users.ensureIndex({username:1,age:1},{"unique":true, "dropDups":true});
+// $ne найдет елементы у кого есть какойта значения  
+db.users.find({username:{$ne:"user101"}});
+
+//? cuped коллекция  
+// создаем capped коллекция  
+db.createCollection("myCapped", {"capped":true, "size":10000, "max":100});
+
+db.runCommand({"convertToCapped":"food", "size":10000});
+
+//? Файлы
+// создать файлы 
+// создаем файл записываем текст  
+// echo "hello world" > foo.txt
+// и сохраняем наш файл в базу данных
+// mongofiles put foo.txt
+
+// mongofiles list
+// rm для удаления файла   
+// rm foo.txt 
+// get для возвршения удаленного файла 
+// mongofiles get foo.txt
+// cat для прочитания нашего файла 
+// cat foo.txt
+
+// чтобы смотреть наши коллекция 
+// show collections
+
+// чтобы смотрать наш запись файлы 
+db.fs.files.find();
+
+// чтобы удалить записи внутри файла 
+db.fs.files.remove({});
+
+
+//? Агрегация 
+// aggregate and method $match проверяеть только по запросу  
+db.cars.aggregate({$match:{"color":"red"}});
+// { "_id" : ObjectId("632832291cb3ff166b8c31b5"), "color" : "red", "maxSpeed" : 225 }
+// { "_id" : ObjectId("632832321cb3ff166b8c31b6"), "color" : "red", "maxSpeed" : 250 }
+
+// $project либо добавляеть либо удаляеть если дано значения 
+db.cars.aggregate({$match:{"color":"red"}}, {$project:{"color":1, "_id":0}});
+// резултать
+// { "color" : "red" }
+// { "color" : "red" }
+// если данно занчения 1 тогда не удаляеть 
+db.cars.aggregate({$match:{"color":"red"}}, {$project:{"color":1, "_id":1}});
+// { "_id" : ObjectId("632832291cb3ff166b8c31b5"), "color" : "red" }
+// { "_id" : ObjectId("632832321cb3ff166b8c31b6"), "color" : "red" }
+
+db.cars.aggregate({$group:{"color":"red"}});
+
+// $group выводят данные то что подходчт по запросу  
+db.cars.aggregate({$group:{"_id":"$color"}});
+// резултать
+// { "_id" : null }
+// { "_id" : "blue" }
+// { "_id" : "red" }
+
+// $sum выводят все сумма  
+db.cars.aggregate({$group:{"_id":"$color", "sum":{$sum:"$maxSpeed"}}});
+// резултать
+// { "_id" : null, "sum" : 230 }
+// { "_id" : "blue", "sum" : 250 }
+// { "_id" : "red", "sum" : 475 }
+
+// $avg выводят среднее значения 
+db.cars.aggregate({$group:{"_id":"$color", "sum":{$avg:"$maxSpeed"}}});
+// резултать
+// { "_id" : null, "sum" : 230 }
+// { "_id" : "blue", "sum" : 250 }
+// { "_id" : "red", "sum" : 237.5 }
+
+// $max выводят максимальное значения  
+db.cars.aggregate({$group:{"_id":"$color", "sum":{$max:"$maxSpeed"}}});
+// резултать
+// { "_id" : null, "sum" : 230 }
+// { "_id" : "blue", "sum" : 250 }
+// { "_id" : "red", "sum" : 240 }
+
+// $min выводят минималное значения 
+db.cars.aggregate({$group:{"_id":"$color", "sum":{$min:"$maxSpeed"}}});
+// резултать
+// { "_id" : null, "sum" : 230 }
+// { "_id" : "blue", "sum" : 250 }
+// { "_id" : "red", "sum" : 235 }
+
+// $first выводят первое значения 
+db.cars.aggregate({$group:{"_id":"$color", "sum":{$first:"$maxSpeed"}}});
+// резултать
+// { "_id" : null, "sum" : 230 }
+// { "_id" : "blue", "sum" : 250 }
+// { "_id" : "red", "sum" : 240 }
+
+// $last выводят последнее значения 
+db.cars.aggregate({$group:{"_id":"$color", "sum":{$last:"$maxSpeed"}}});
+// { "_id" : null, "sum" : null }
+// { "_id" : "blue", "sum" : 250 }
+// { "_id" : "red", "sum" : 235 }
+
+// сортирует и выводят по последовательностю 
+db.cars.aggregate({$project:{"color":1, _id:0}},{"$sort":{"color":-1}});
+// { "color" : "red" }
+// { "color" : "red" }
+// { "color" : "blue" }
+// { "color" : null }
+// {  }
+// {  }
+
+// $limit выводят по укаазаного лимитта 
+db.cars.aggregate({$limit:2});
+// { "_id" : ObjectId("632832291cb3ff166b8c31b5"), "color" : "red", "maxSpeed" : 240 }
+// { "_id" : ObjectId("632832321cb3ff166b8c31b6"), "color" : "blue", "maxSpeed" : 250 }
+
+
+db.cars.aggregate({$skip:2});
+// { "_id" : ObjectId("632836861cb3ff166b8c31b7"), "color" : null, "maxSpeed" : 230 }
+// { "_id" : ObjectId("6329605f6345b9ae7aacdec4"), "name" : { "first" : "Max", "last" : "Black" } }
+// { "_id" : ObjectId("632960786345b9ae7aacdec5"), "name" : { "first" : "Mike", "last" : "Smith" } }
+// { "_id" : ObjectId("632d6b86601b4d4dc66fed98"), "color" : "red", "maxSpeed" : 235 }
+
+db.cars.count();
+6
+db.runCommand({"distinct":"cars","key":"color"});
+// { "values" : [ "red", "blue", null ], "ok" : 1 }
+
+//? Replace     
+ 
